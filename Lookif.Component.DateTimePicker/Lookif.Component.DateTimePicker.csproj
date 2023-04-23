@@ -7,6 +7,13 @@
 		<GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>Blazor Persian Calendar - Lookif</Title>
+		<Description>A calendar component  for blazor.</Description>
+		<RepositoryUrl>https://github.com/Farshadhn/Lookif.Component.DateTimePicker</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>blazor;razor;persian calendar;lookif</PackageTags>
+		<NeutralLanguage>fa-IR</NeutralLanguage>
+		<PackageLicenseFile>License.txt</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 
 	</PropertyGroup>
 
@@ -26,5 +33,11 @@
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="wwwroot\*" /> 
+	</ItemGroup>
+	<ItemGroup>
+	  <None Include="..\License.txt">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 </Project>
