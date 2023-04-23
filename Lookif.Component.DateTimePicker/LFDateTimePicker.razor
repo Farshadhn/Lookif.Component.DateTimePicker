@@ -1,0 +1,90 @@
+﻿@namespace Lookif.Component.DateTimePicker
+@using DNTPersianUtils.Core
+<div style="position:relative" >
+    <input type="text" class="DateTimeInput form-control LH" @onclick="Toggle" value='@Latest.ToString("yyyy/MM/dd hh:mm")'>
+    <img class="DateTimeIcon" @onclick="Toggle" src="./_content/Lookif.Component.DateTimePicker/calendar.svg" />
+
+
+    <div  class='Main-Wrapper-Calendar @(Show ? "d-flex":"d-none") flex-column ' style="position:absolute;">
+        <div class="Header-SelectedDate-Calendar">
+            @Latest.ToPersianDateTextify()
+        </div>
+        <div class="Header-Calendar">
+            <select @bind="SelectedMonth">
+                @foreach (var month in MonthNames)
+                {
+                    <option value=@(month.RowNumber + 1)>@month.Name</option>
+                }
+            </select>
+            <select @bind="SelectedYear" style="width:33%;font-size:small">
+                @{
+                    for (int i = YearValue - 100; i <= YearValue + 100; i++)
+                    {
+                        <option value=@i>@i</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="Main-Calendar">
+
+            <table class="table table-sm table-striped table-borderless">
+                <tbody>
+                    <tr>
+                        @foreach (var item in WeekDays)
+                        {
+                            <td>@item.Name</td>
+                        }
+                    </tr>
+
+
+                    @{
+                        int daysPassed = 0;
+                        <tr>
+                            @foreach (var item in WeekDays)
+                            {
+                                if ((item.RowNumber != FirstDayOfMonth_DayOfWeek) && daysPassed == 0)
+                                {
+                                    <td></td>
+                                }
+                                else
+                                {
+                                    var temp = ++daysPassed;
+                                    <td class='Day@(temp == SelectedDay?" selected":"") @((item.RowNumber == 5 )?" Holiday":"" )' @onclick="async ()=>await Day_Click(temp)">
+
+                                        @daysPassed
+                                    </td>
+                                }
+                            }
+                        </tr>
+                        int remaindModule7 = (DaysValue - daysPassed) / 7;
+                        @for (int i = 0; i <= remaindModule7; i++)
+                        {
+                            <tr>
+                                @foreach (var item in WeekDays)
+                                {
+                                    if (daysPassed == DaysValue)
+                                    {
+                                        <td></td>
+                                    }
+                                    else
+                                    {
+                                        var temp = ++daysPassed;
+                                        <td class='Day@(temp == SelectedDay?" selected":"") @((item.RowNumber == 5 )?" Holiday":"" )' @onclick="async ()=>await Day_Click(temp)">@(daysPassed)</td>
+
+                                    }
+                                }
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="Footer-Calendar">
+            <span> ساعت</span>
+            <input type="time" @bind=Time @onkeydown="EnterTime">
+
+
+        </div>
+    </div>
+
+</div>

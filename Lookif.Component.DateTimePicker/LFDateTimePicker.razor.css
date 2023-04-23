@@ -1,0 +1,87 @@
+﻿
+@font-face {
+    font-family: Yekan;
+    src: url('Yekan.eot');
+    src: url('Yekan.eot?#iefix') format('Yekan-opentype'), url('Yekan.woff') format('woff'), url('Yekan.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+font-family:Yekan
+}
+
+.Main-Wrapper-Calendar {
+    border-radius: 15px;
+    width: 350px;
+    height: 40vh;
+    padding: 0.5rem 0;
+    background-color: #f7f7f7;
+    top: 30px;
+    z-index: 10000;
+    min-height: 350px;
+    max-width: 400px;
+}
+}
+.DateTimeInput {
+    width: 100%;
+    text-align: center;
+}
+.DateTimeIcon {
+    width: 20px;
+    position: absolute;
+    left: 5px;
+    top: 5px;
+}
+.Header-SelectedDate-Calendar {
+    width: 100%;
+    height: 10%;
+    border-bottom: 1px gray solid;
+    text-align: center;
+}
+
+.Header-Calendar select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 1px;
+    text-overflow: '';
+    font-size: small;
+    width: 40%;
+    font-size: small;
+    text-align: center;
+    background-color: #f7f7f7;
+}
+.Main-Calendar .Holiday {
+    color: red;
+}
+.Header-Calendar {
+    width: 100%;
+    height: 10%;
+    text-align: center
+}
+
+.Main-Calendar {
+    width: 100%;
+    height: 70%;
+}
+
+.Main-Calendar td {
+    text-align: center;
+}
+
+.Main-Calendar td.Day:hover {
+    background-color: #ccc;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.Main-Calendar td.selected {
+    background-color: #7fffd4;
+}
+
+
+.Footer-Calendar {
+    width: 100%;
+    height: 10%;
+    text-align: center
+}
