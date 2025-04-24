@@ -58,7 +58,7 @@ public partial class LFDateTimePicker : IDisposable
 
 
     [Parameter]
-    public DateTime Value { get; set; }
+    public DateTime Value { get; set; } 
     [Parameter]
     public bool CultureType { get; set; } = true;
     public int YearValue { get; set; }
@@ -76,7 +76,7 @@ public partial class LFDateTimePicker : IDisposable
     private int selectedYear = CurrentCulture.Calendar.GetYear(Now);
     private int selectedMonth = CurrentCulture.Calendar.GetMonth(Now);
     private int selectedDay = CurrentCulture.Calendar.GetDayOfMonth(Now);
-    private TimeOnly _time;
+    private TimeOnly _time =  TimeOnly.FromTimeSpan(DateTime.Now.TimeOfDay);
 
     private int SelectedDay
     {
