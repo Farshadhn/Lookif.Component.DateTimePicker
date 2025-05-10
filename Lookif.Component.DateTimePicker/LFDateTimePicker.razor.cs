@@ -56,9 +56,11 @@ public partial class LFDateTimePicker : IDisposable
 
 
 
+    [Parameter]
+    public bool Disabled { get; set; } = false;
 
     [Parameter]
-    public DateTime Value { get; set; } 
+    public DateTime Value { get; set; }
     [Parameter]
     public bool CultureType { get; set; } = true;
     public int YearValue { get; set; }
@@ -76,7 +78,7 @@ public partial class LFDateTimePicker : IDisposable
     private int selectedYear = CurrentCulture.Calendar.GetYear(Now);
     private int selectedMonth = CurrentCulture.Calendar.GetMonth(Now);
     private int selectedDay = CurrentCulture.Calendar.GetDayOfMonth(Now);
-    private TimeOnly _time =  TimeOnly.FromTimeSpan(DateTime.Now.TimeOfDay);
+    private TimeOnly _time = TimeOnly.FromTimeSpan(DateTime.Now.TimeOfDay);
 
     private int SelectedDay
     {
@@ -143,6 +145,8 @@ public partial class LFDateTimePicker : IDisposable
     [JSInvokable("Toggle")]
     public async Task Toggle()
     {
+        if (Disabled)
+            return;
         Show = !Show;
 
         if (Show)

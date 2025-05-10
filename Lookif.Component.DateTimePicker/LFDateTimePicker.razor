@@ -1,6 +1,6 @@
 ﻿@namespace Lookif.Component.DateTimePicker
 @using DNTPersianUtils.Core
-<div style="position:relative" >
+<div style="position:relative" class="@(Disabled ?"disabled":"")">
     <input type="text" class="DateTimeInput form-control LH" @onclick="Toggle" value='@Latest.ToString("yyyy/MM/dd hh:mm")'>
     <img class="DateTimeIcon" @onclick="Toggle" src="./_content/Lookif.Component.DateTimePicker/calendar.svg" />
 
