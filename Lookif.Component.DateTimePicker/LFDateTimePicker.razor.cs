@@ -172,6 +172,8 @@ public partial class LFDateTimePicker : IDisposable
     }
     protected override async Task OnParametersSetAsync()
     {
+        if (Disabled)
+            return;
         YearValue = CurrentCulture.Calendar.GetYear(DateTime.Now);
         SetDaysOfSelectedDateTime();
         SetFirstDayOfMonth_DayOfWeek();
