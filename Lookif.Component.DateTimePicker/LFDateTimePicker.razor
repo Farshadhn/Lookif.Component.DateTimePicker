@@ -1,42 +1,50 @@
 ﻿@namespace Lookif.Component.DateTimePicker
 @using DNTPersianUtils.Core
-<div style="position:relative" class="@(Disabled ?"disabled":"")">
-    <input type="text" class="DateTimeInput form-control LH" @onclick="Toggle" value='@Latest.ToString("yyyy/MM/dd hh:mm")'>
-    <img class="DateTimeIcon" @onclick="Toggle" src="./_content/Lookif.Component.DateTimePicker/calendar.svg" />
 
+<div class="datetime-picker-wrapper @(Disabled ? "disabled" : "")">
+    <div class="input-wrapper">
+        <input type="text" 
+               class="DateTimeInput @(Disabled ? "disabled" : "")" 
+               @onclick="Toggle" 
+               value='@Latest.ToString("yyyy/MM/dd HH:mm")'
+               readonly />
+        <img class="DateTimeIcon" 
+             @onclick="Toggle" 
+             src="./_content/Lookif.Component.DateTimePicker/calendar.svg" 
+             alt="Calendar" />
+    </div>
 
-    <div  class='Main-Wrapper-Calendar @(Show ? "d-flex":"d-none") flex-column ' style="position:absolute;">
+    <div class='Main-Wrapper-Calendar @(Show ? "show" : "")'>
         <div class="Header-SelectedDate-Calendar">
             @Latest.ToPersianDateTextify()
         </div>
+        
         <div class="Header-Calendar">
-            <select @bind="SelectedMonth">
+            <select @bind="SelectedMonth" class="month-select">
                 @foreach (var month in MonthNames)
                 {
                     <option value=@(month.RowNumber + 1)>@month.Name</option>
                 }
             </select>
-            <select @bind="SelectedYear" style="width:33%;font-size:small">
-                @{
-                    for (int i = YearValue - 100; i <= YearValue + 100; i++)
-                    {
-                        <option value=@i>@i</option>
-                    }
+            <select @bind="SelectedYear" class="year-select">
+                @for (int i = YearValue - 100; i <= YearValue + 100; i++)
+                {
+                    <option value=@i>@i</option>
                 }
             </select>
         </div>
-        <div class="Main-Calendar">
 
-            <table class="table table-sm table-striped table-borderless">
-                <tbody>
+        <div class="Main-Calendar">
+            <table>
+                <thead>
                     <tr>
                         @foreach (var item in WeekDays)
                         {
-                            <td>@item.Name</td>
+                            <th>@item.Name</th>
                         }
                     </tr>
-
-
+                </thead>
+                <tbody>
                     @{
                         int daysPassed = 0;
                         <tr>
@@ -49,8 +57,8 @@
                                 else
                                 {
                                     var temp = ++daysPassed;
-                                    <td class='Day@(temp == SelectedDay?" selected":"") @((item.RowNumber == 5 )?" Holiday":"" )' @onclick="async ()=>await Day_Click(temp)">
-
+                                    <td class='Day@(temp == SelectedDay ? " selected" : "") @(item.RowNumber == 5 ? " Holiday" : "")' 
+                                        @onclick="async () => await Day_Click(temp)">
                                         @daysPassed
                                     </td>
                                 }
@@ -69,8 +77,10 @@
                                     else
                                     {
                                         var temp = ++daysPassed;
-                                        <td class='Day@(temp == SelectedDay?" selected":"") @((item.RowNumber == 5 )?" Holiday":"" )' @onclick="async ()=>await Day_Click(temp)">@(daysPassed)</td>
-
+                                        <td class='Day@(temp == SelectedDay ? " selected" : "") @(item.RowNumber == 5 ? " Holiday" : "")' 
+                                            @onclick="async () => await Day_Click(temp)">
+                                            @daysPassed
+                                        </td>
                                     }
                                 }
                             </tr>
@@ -79,12 +89,18 @@
                 </tbody>
             </table>
         </div>
+
         <div class="Footer-Calendar">
-            <span> ساعت</span>
-            <input type="time" @bind=Time @onkeydown="EnterTime">
-
-
+            <div class="time-picker">
+                <span class="time-label">ساعت</span>
+                <input type="time" 
+                       @bind="Time" 
+                       @onkeydown="EnterTime"
+                       class="time-input" />
+            </div>
+            <button class="today-button" @onclick="SetToToday">
+                امروز
+            </button>
         </div>
     </div>
-
 </div>
