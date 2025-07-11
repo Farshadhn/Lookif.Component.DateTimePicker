@@ -6,7 +6,7 @@
         <input type="text" 
                class="DateTimeInput @(Disabled ? "disabled" : "")" 
                @onclick="Toggle" 
-               value='@Latest.ToString("yyyy/MM/dd HH:mm")'
+               value='@(IsDateOnlyMode ? Latest.ToString("yyyy/MM/dd") : Latest.ToString("yyyy/MM/dd HH:mm"))'
                readonly />
         <img class="DateTimeIcon" 
              @onclick="Toggle" 
@@ -16,7 +16,7 @@
 
     <div class='Main-Wrapper-Calendar @(Show ? "show" : "")'>
         <div class="Header-SelectedDate-Calendar">
-            @Latest.ToPersianDateTextify()
+            @(IsDateOnlyMode ? DateOnly.FromDateTime(Latest).ToPersianDateTextify() : Latest.ToPersianDateTextify())
         </div>
         
         <div class="Header-Calendar">
@@ -91,13 +91,16 @@
         </div>
 
         <div class="Footer-Calendar">
-            <div class="time-picker">
-                <span class="time-label">ساعت</span>
-                <input type="time" 
-                       @bind="Time" 
-                       @onkeydown="EnterTime"
-                       class="time-input" />
-            </div>
+            @if (!IsDateOnlyMode)
+            {
+                <div class="time-picker">
+                    <span class="time-label">ساعت</span>
+                    <input type="time" 
+                           @bind="Time" 
+                           @onkeydown="EnterTime"
+                           class="time-input" />
+                </div>
+            }
             <button class="today-button" @onclick="SetToToday">
                 امروز
             </button>

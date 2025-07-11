@@ -1,0 +1,33 @@
+@page "/demo"
+@using Lookif.Component.DateTimePicker
+
+<h3>LFDateTimePicker Demo</h3>
+
+<div class="demo-container">
+    <div class="demo-section">
+        <h4>Nullable DateTime</h4>
+        <LFDateTimePicker @bind-DateTimeValue="DateTimeValue" />
+        <p>Selected DateTime: @(DateTimeValue.ToString("yyyy/MM/dd HH:mm") ?? "No date selected")</p>
+    </div>
+
+    <div class="demo-section">
+        <h4>Nullable DateOnly</h4>
+        <LFDateTimePicker @bind-DateOnlyValue="DateOnlyValue" Mode="DateTimePickerMode.DateOnly" />
+        <p>Selected DateOnly: @(DateOnlyValue.ToString("yyyy/MM/dd") ?? "No date selected")</p>
+    </div>
+
+    <div class="demo-section">
+        <h4>Disabled State (DateTime)</h4>
+        <LFDateTimePicker @bind-DateTimeValue="DateTimeValue" Disabled="true" />
+    </div>
+
+    <div class="demo-section">
+        <h4>Disabled State (DateOnly)</h4>
+        <LFDateTimePicker @bind-DateOnlyValue="DateOnlyValue" Disabled="true" Mode="DateTimePickerMode.DateOnly" />
+    </div>
+</div>
+
+@code {
+    private DateTime  DateTimeValue = DateTime.Now;
+    private DateOnly  DateOnlyValue = DateOnly.FromDateTime(DateTime.Now);
+} 

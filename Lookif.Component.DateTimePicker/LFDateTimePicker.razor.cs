@@ -6,14 +6,35 @@ using System.Globalization;
 
 using static System.Globalization.CultureInfo;
 namespace Lookif.Component.DateTimePicker;
+public enum DateTimePickerMode
+{
 
+    DateTime,
+    DateOnly
+}
 public partial class LFDateTimePicker : IDisposable
 {
     [Inject] private IJSRuntime _jSRuntime { get; set; }
     [Parameter] public bool Disabled { get; set; }
-    [Parameter] public DateTime Value { get; set; }
-    [Parameter] public bool CultureType { get; set; } = true;
-    [Parameter] public EventCallback<DateTime> ValueChanged { get; set; }
+    [Parameter] public DateTimePickerMode Mode { get; set; } = DateTimePickerMode.DateTime;
+    // Parameters for different types
+    [Parameter] public DateTime DateTimeValue { get; set; }
+    [Parameter] public DateOnly DateOnlyValue { get; set; }
+    [Parameter] public EventCallback<DateTime> DateTimeValueChanged { get; set; }
+    [Parameter] public EventCallback<DateOnly> DateOnlyValueChanged { get; set; }
+
+    // Helper properties to determine the type and get the value
+    private DateTime CurrentValue
+    {
+        get
+        {
+            if (!IsDateOnlyMode) return DateTimeValue;
+            else return DateOnlyValue.ToDateTime(TimeOnly.MinValue);
+
+        }
+    }
+
+    private bool IsDateOnlyMode => Mode == DateTimePickerMode.DateOnly;
 
     private readonly Guid Identity = Guid.NewGuid();
     private DotNetObjectReference<LFDateTimePicker> objRef;
@@ -29,7 +50,7 @@ public partial class LFDateTimePicker : IDisposable
     private int selectedMonth = CurrentCulture.Calendar.GetMonth(Now);
     private int selectedDay = CurrentCulture.Calendar.GetDayOfMonth(Now);
 
-    private IEnumerable<(int RowNumber, string Name)> MonthNames => 
+    private IEnumerable<(int RowNumber, string Name)> MonthNames =>
         DateTimeFormatInfo.CurrentInfo.MonthNames.Select((value, i) => (i, value));
 
     private IEnumerable<(int RowNumber, string Name)> WeekDays => new List<(int RowNumber, string Name)>
@@ -54,7 +75,7 @@ public partial class LFDateTimePicker : IDisposable
         {
             if (value == _time) return;
             _time = value;
-            ValueChanged.InvokeAsync(Latest);
+            NotifyValueChanged();
         }
     }
 
@@ -65,7 +86,7 @@ public partial class LFDateTimePicker : IDisposable
         {
             if (value == selectedDay) return;
             selectedDay = value;
-            ValueChanged.InvokeAsync(Latest);
+            NotifyValueChanged();
         }
     }
 
@@ -78,7 +99,7 @@ public partial class LFDateTimePicker : IDisposable
             selectedMonth = value;
             SetFirstDayOfMonth_DayOfWeek();
             SetDaysOfSelectedDateTime();
-            ValueChanged.InvokeAsync(Latest);
+            NotifyValueChanged();
         }
     }
 
@@ -91,7 +112,7 @@ public partial class LFDateTimePicker : IDisposable
             selectedYear = value;
             SetFirstDayOfMonth_DayOfWeek();
             SetDaysOfSelectedDateTime();
-            ValueChanged.InvokeAsync(Latest);
+            NotifyValueChanged();
         }
     }
 
@@ -106,7 +127,7 @@ public partial class LFDateTimePicker : IDisposable
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        ValueChanged.InvokeAsync(Latest);
+        NotifyValueChanged();
     }
 
     protected override async Task OnParametersSetAsync()
@@ -117,13 +138,18 @@ public partial class LFDateTimePicker : IDisposable
         SetDaysOfSelectedDateTime();
         SetFirstDayOfMonth_DayOfWeek();
 
-        if (Value != default)
+        if (CurrentValue != default)
         {
-            var input = new DateTime(Value.Year, Value.Month, Value.Day);
+            var input = new DateTime(CurrentValue.Year, CurrentValue.Month, CurrentValue.Day);
             var d = CurrentCulture.Calendar.GetDayOfMonth(input);
             var m = CurrentCulture.Calendar.GetMonth(input);
             var y = CurrentCulture.Calendar.GetYear(input);
-            Time = TimeOnly.FromDateTime(Value);
+
+            // Only set time if we're in DateTime mode
+            if (!IsDateOnlyMode)
+            {
+                Time = TimeOnly.FromDateTime(CurrentValue);
+            }
 
             if (SelectedDay != d) SelectedDay = d;
             if (SelectedMonth != m) SelectedMonth = m;
@@ -134,6 +160,19 @@ public partial class LFDateTimePicker : IDisposable
         if (_jSRuntime is not null)
         {
             _lFDateTimeJSInterop = new LFDateTimeJSInterop(_jSRuntime);
+        }
+    }
+
+    private void NotifyValueChanged()
+    {
+        if (IsDateOnlyMode)
+        {
+            var dateOnly = DateOnly.FromDateTime(Latest);
+            DateOnlyValueChanged.InvokeAsync(dateOnly);
+        }
+        else
+        {
+            DateTimeValueChanged.InvokeAsync(Latest);
         }
     }
 
@@ -184,8 +223,13 @@ public partial class LFDateTimePicker : IDisposable
         SelectedYear = CurrentCulture.Calendar.GetYear(today);
         SelectedMonth = CurrentCulture.Calendar.GetMonth(today);
         SelectedDay = CurrentCulture.Calendar.GetDayOfMonth(today);
-        Time = TimeOnly.FromDateTime(today);
-        
+
+        // Only set time if we're in DateTime mode
+        if (!IsDateOnlyMode)
+        {
+            Time = TimeOnly.FromDateTime(today);
+        }
+
         await _lFDateTimeJSInterop.SetOrUnsetInstance(objRef, Identity, false);
         await Toggle();
     }

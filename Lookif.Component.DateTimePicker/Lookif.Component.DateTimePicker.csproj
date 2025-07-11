@@ -12,9 +12,9 @@
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>blazor;razor;persian calendar;lookif</PackageTags>
 		<NeutralLanguage>fa-IR</NeutralLanguage> 
-		<AssemblyVersion>2.2.0</AssemblyVersion>
-		<FileVersion>2.2.0</FileVersion>
-		<Version>2.2.0</Version>
+		<AssemblyVersion>3.0.0</AssemblyVersion>
+		<FileVersion>3.0.0</FileVersion>
+		<Version>3.0.0</Version>
 	</PropertyGroup>
 
 
