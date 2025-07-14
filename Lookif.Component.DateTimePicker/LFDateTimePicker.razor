@@ -3,7 +3,8 @@
 
 <div class="datetime-picker-wrapper @(Disabled ? "disabled" : "")">
     <div class="input-wrapper">
-        <input type="text" 
+        <input id="lfdt-input-@Identity"
+               type="text" 
                class="DateTimeInput @(Disabled ? "disabled" : "")" 
                @onclick="Toggle" 
                value='@(IsDateOnlyMode ? Latest.ToString("yyyy/MM/dd") : Latest.ToString("yyyy/MM/dd HH:mm"))'
@@ -14,7 +15,7 @@
              alt="Calendar" />
     </div>
 
-    <div class='Main-Wrapper-Calendar @(Show ? "show" : "")'>
+    <div id="lfdt-popup-@Identity" class='Main-Wrapper-Calendar @(Show ? "show" : "")'>
         <div class="Header-SelectedDate-Calendar">
             @(IsDateOnlyMode ? DateOnly.FromDateTime(Latest).ToPersianDateTextify() : Latest.ToPersianDateTextify())
         </div>

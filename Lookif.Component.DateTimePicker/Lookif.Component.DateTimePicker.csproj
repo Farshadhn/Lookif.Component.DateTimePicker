@@ -12,9 +12,9 @@
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>blazor;razor;persian calendar;lookif</PackageTags>
 		<NeutralLanguage>fa-IR</NeutralLanguage> 
-		<AssemblyVersion>3.0.0</AssemblyVersion>
-		<FileVersion>3.0.0</FileVersion>
-		<Version>3.0.0</Version>
+		<AssemblyVersion>3.0.1</AssemblyVersion>
+		<FileVersion>3.0.1</FileVersion>
+		<Version>3.0.1</Version>
 	</PropertyGroup>
 
 
@@ -33,5 +33,8 @@
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="wwwroot\*" /> 
+	</ItemGroup>
+	<ItemGroup>
+	  <EmbeddedResource Remove="wwwroot\LFDateTime.js" />
 	</ItemGroup>
 </Project>

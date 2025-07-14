@@ -61,12 +61,13 @@
     width: 280px;
     background-color: white;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    position: absolute;
-    top: 35px;
-    z-index: 10000;
+    position: fixed !important;
+    z-index: 99999 !important;
     overflow: hidden;
     transition: all 0.2s ease;
     display: none;
+    left: 0; /* Will be set by JS */
+    top: 0;  /* Will be set by JS */
 }
 
 .Main-Wrapper-Calendar.show {

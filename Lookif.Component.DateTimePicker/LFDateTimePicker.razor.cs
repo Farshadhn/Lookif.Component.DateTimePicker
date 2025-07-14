@@ -196,7 +196,16 @@ public partial class LFDateTimePicker : IDisposable
 
         if (Show)
         {
-            await _lFDateTimeJSInterop.SetOrUnsetInstance(objRef, Identity, Show);
+            Show = !Show;
+            await _lFDateTimeJSInterop.SetOrUnsetInstance(objRef, Identity, true);
+            // Position the popup below the input using JSInterop wrapper
+            if (_lFDateTimeJSInterop != null)
+            {
+                
+                await _lFDateTimeJSInterop.SetPopupPosition($"lfdt-input-{Identity}", $"lfdt-popup-{Identity}");
+               
+            }
+            Show = !Show;
         }
         StateHasChanged();
     }

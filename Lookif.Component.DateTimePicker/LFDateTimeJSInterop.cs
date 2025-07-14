@@ -24,6 +24,11 @@ namespace Lookif.Component.DateTimePicker
             var module = await moduleTask.Value;
             await module.InvokeVoidAsync("SetOrUnsetInstance", dotNetObjectReference, identity, IsItSet);
         }
+        public async ValueTask SetPopupPosition(string inputId, string popupId)
+        {
+            var module = await moduleTask.Value;
+            await module.InvokeVoidAsync("lfdt_setPopupPosition", inputId, popupId);
+        }
      
         public async ValueTask DisposeAsync()
         {
