@@ -30,11 +30,11 @@ public partial class LFDateTimePicker : IDisposable
         {
             if (!IsDateOnlyMode) return DateTimeValue;
             else return DateOnlyValue.ToDateTime(TimeOnly.MinValue);
-
         }
     }
 
-    private bool IsDateOnlyMode => Mode == DateTimePickerMode.DateOnly;
+    private bool IsDateOnlyMode => Mode == DateTimePickerMode.DateOnly || 
+                                  (DateOnlyValueChanged.HasDelegate && !DateTimeValueChanged.HasDelegate);
 
     private readonly Guid Identity = Guid.NewGuid();
     private DotNetObjectReference<LFDateTimePicker> objRef;
@@ -64,9 +64,11 @@ public partial class LFDateTimePicker : IDisposable
         (5, "ج")
     };
 
-    private DateTime Latest => DateTime.TryParse($"{selectedYear}-{selectedMonth}-{selectedDay} {Time.Hour}:{Time.Minute}", out DateTime d)
-        ? d
-        : DateTime.Parse($"{selectedYear}-{selectedMonth}-1");
+    private DateTime Latest => IsDateOnlyMode 
+        ? DateTime.Parse($"{selectedYear}-{selectedMonth}-{selectedDay}")
+        : DateTime.TryParse($"{selectedYear}-{selectedMonth}-{selectedDay} {Time.Hour}:{Time.Minute}", out DateTime d)
+            ? d
+            : DateTime.Parse($"{selectedYear}-{selectedMonth}-1");
 
     private TimeOnly Time
     {

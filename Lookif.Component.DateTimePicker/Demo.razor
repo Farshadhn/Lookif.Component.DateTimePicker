@@ -11,8 +11,8 @@
     </div>
 
     <div class="demo-section">
-        <h4>Nullable DateOnly</h4>
-        <LFDateTimePicker @bind-DateOnlyValue="DateOnlyValue" Mode="DateTimePickerMode.DateOnly" />
+        <h4>Nullable DateOnly (Auto-detected)</h4>
+        <LFDateTimePicker @bind-DateOnlyValue="DateOnlyValue" />
         <p>Selected DateOnly: @(DateOnlyValue.ToString("yyyy/MM/dd") ?? "No date selected")</p>
     </div>
 
@@ -22,8 +22,8 @@
     </div>
 
     <div class="demo-section">
-        <h4>Disabled State (DateOnly)</h4>
-        <LFDateTimePicker @bind-DateOnlyValue="DateOnlyValue" Disabled="true" Mode="DateTimePickerMode.DateOnly" />
+        <h4>Disabled State (DateOnly - Auto-detected)</h4>
+        <LFDateTimePicker @bind-DateOnlyValue="DateOnlyValue" Disabled="true" />
     </div>
 </div>
 
