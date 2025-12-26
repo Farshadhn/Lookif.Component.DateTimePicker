@@ -12,11 +12,18 @@ public enum DateTimePickerMode
     DateTime,
     DateOnly
 }
+
+public enum CalendarType
+{
+    Persian,
+    Gregorian
+}
 public partial class LFDateTimePicker : IDisposable
 {
     [Inject] private IJSRuntime _jSRuntime { get; set; }
     [Parameter] public bool Disabled { get; set; }
     [Parameter] public DateTimePickerMode Mode { get; set; } = DateTimePickerMode.DateTime;
+    [Parameter] public CalendarType Calendar { get; set; } = CalendarType.Persian;
     // Parameters for different types
     [Parameter] public DateTime DateTimeValue { get; set; }
     [Parameter] public DateOnly DateOnlyValue { get; set; }
@@ -46,29 +53,109 @@ public partial class LFDateTimePicker : IDisposable
     private int DaysValue { get; set; }
     private int FirstDayOfMonth_DayOfWeek { get; set; }
 
-    private int selectedYear = CurrentCulture.Calendar.GetYear(Now);
-    private int selectedMonth = CurrentCulture.Calendar.GetMonth(Now);
-    private int selectedDay = CurrentCulture.Calendar.GetDayOfMonth(Now);
+    private Calendar CurrentCalendar => Calendar == CalendarType.Persian 
+        ? new PersianCalendar() 
+        : new GregorianCalendar();
 
-    private IEnumerable<(int RowNumber, string Name)> MonthNames =>
-        DateTimeFormatInfo.CurrentInfo.MonthNames.Select((value, i) => (i, value));
+    private int selectedYear;
+    private int selectedMonth;
+    private int selectedDay;
 
-    private IEnumerable<(int RowNumber, string Name)> WeekDays => new List<(int RowNumber, string Name)>
+    private IEnumerable<(int RowNumber, string Name)> MonthNames
     {
-        (6, "ش"),
-        (0, "ی"),
-        (1, "د"),
-        (2, "س"),
-        (3, "چ"),
-        (4, "پ"),
-        (5, "ج")
-    };
+        get
+        {
+            if (Calendar == CalendarType.Persian)
+            {
+                return new List<(int, string)>
+                {
+                    (0, "فروردین"),
+                    (1, "اردیبهشت"),
+                    (2, "خرداد"),
+                    (3, "تیر"),
+                    (4, "مرداد"),
+                    (5, "شهریور"),
+                    (6, "مهر"),
+                    (7, "آبان"),
+                    (8, "آذر"),
+                    (9, "دی"),
+                    (10, "بهمن"),
+                    (11, "اسفند")
+                };
+            }
+            else
+            {
+                return DateTimeFormatInfo.GetInstance(new CultureInfo("en-US")).MonthNames
+                    .Where(m => !string.IsNullOrEmpty(m))
+                    .Select((value, i) => (i, value));
+            }
+        }
+    }
 
-    private DateTime Latest => IsDateOnlyMode 
-        ? DateTime.Parse($"{selectedYear}-{selectedMonth}-{selectedDay}")
-        : DateTime.TryParse($"{selectedYear}-{selectedMonth}-{selectedDay} {Time.Hour}:{Time.Minute}", out DateTime d)
-            ? d
-            : DateTime.Parse($"{selectedYear}-{selectedMonth}-1");
+    private IEnumerable<(int RowNumber, string Name)> WeekDays
+    {
+        get
+        {
+            if (Calendar == CalendarType.Persian)
+            {
+                return new List<(int RowNumber, string Name)>
+                {
+                    (6, "ش"),
+                    (0, "ی"),
+                    (1, "د"),
+                    (2, "س"),
+                    (3, "چ"),
+                    (4, "پ"),
+                    (5, "ج")
+                };
+            }
+            else
+            {
+                return new List<(int RowNumber, string Name)>
+                {
+                    (0, "Sun"),
+                    (1, "Mon"),
+                    (2, "Tue"),
+                    (3, "Wed"),
+                    (4, "Thu"),
+                    (5, "Fri"),
+                    (6, "Sat")
+                };
+            }
+        }
+    }
+
+    private DateTime Latest
+    {
+        get
+        {
+            if (Calendar == CalendarType.Persian)
+            {
+                if (IsDateOnlyMode)
+                {
+                    return new DateTime(selectedYear, selectedMonth, selectedDay, CurrentCalendar);
+                }
+                else
+                {
+                    var date = new DateTime(selectedYear, selectedMonth, selectedDay, CurrentCalendar);
+                    return date.Date.Add(Time.ToTimeSpan());
+                }
+            }
+            else
+            {
+                if (IsDateOnlyMode)
+                {
+                    return new DateTime(selectedYear, selectedMonth, selectedDay);
+                }
+                else
+                {
+                    if (DateTime.TryParse($"{selectedYear}-{selectedMonth}-{selectedDay} {Time.Hour}:{Time.Minute}", out DateTime d))
+                        return d;
+                    return new DateTime(selectedYear, selectedMonth, 1);
+                }
+            }
+        }
+    }
 
     private TimeOnly Time
     {
@@ -119,7 +206,6 @@ public partial class LFDateTimePicker : IDisposable
     }
 
     private static DateTime Now => DateTime.Now;
-    private static CultureInfo CurrentCulture => CultureInfo.CurrentCulture;
 
     public void Dispose()
     {
@@ -129,6 +215,22 @@ public partial class LFDateTimePicker : IDisposable
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+        
+        // Initialize selected date based on calendar type
+        var now = DateTime.Now;
+        if (Calendar == CalendarType.Persian)
+        {
+            selectedYear = CurrentCalendar.GetYear(now);
+            selectedMonth = CurrentCalendar.GetMonth(now);
+            selectedDay = CurrentCalendar.GetDayOfMonth(now);
+        }
+        else
+        {
+            selectedYear = now.Year;
+            selectedMonth = now.Month;
+            selectedDay = now.Day;
+        }
+        
         NotifyValueChanged();
     }
 
@@ -136,26 +238,49 @@ public partial class LFDateTimePicker : IDisposable
     {
         if (Disabled) return;
 
-        YearValue = CurrentCulture.Calendar.GetYear(DateTime.Now);
+        var now = DateTime.Now;
+        if (Calendar == CalendarType.Persian)
+        {
+            YearValue = CurrentCalendar.GetYear(now);
+        }
+        else
+        {
+            YearValue = now.Year;
+        }
+        
         SetDaysOfSelectedDateTime();
         SetFirstDayOfMonth_DayOfWeek();
 
         if (CurrentValue != default)
         {
-            var input = new DateTime(CurrentValue.Year, CurrentValue.Month, CurrentValue.Day);
-            var d = CurrentCulture.Calendar.GetDayOfMonth(input);
-            var m = CurrentCulture.Calendar.GetMonth(input);
-            var y = CurrentCulture.Calendar.GetYear(input);
+            DateTime input;
+            if (Calendar == CalendarType.Persian)
+            {
+                // CurrentValue is already in Gregorian, we need to convert it to Persian
+                var d = CurrentCalendar.GetDayOfMonth(CurrentValue);
+                var m = CurrentCalendar.GetMonth(CurrentValue);
+                var y = CurrentCalendar.GetYear(CurrentValue);
+                
+                if (SelectedDay != d) SelectedDay = d;
+                if (SelectedMonth != m) SelectedMonth = m;
+                if (SelectedYear != y) SelectedYear = y;
+            }
+            else
+            {
+                var d = CurrentValue.Day;
+                var m = CurrentValue.Month;
+                var y = CurrentValue.Year;
+                
+                if (SelectedDay != d) SelectedDay = d;
+                if (SelectedMonth != m) SelectedMonth = m;
+                if (SelectedYear != y) SelectedYear = y;
+            }
 
             // Only set time if we're in DateTime mode
             if (!IsDateOnlyMode)
             {
                 Time = TimeOnly.FromDateTime(CurrentValue);
             }
-
-            if (SelectedDay != d) SelectedDay = d;
-            if (SelectedMonth != m) SelectedMonth = m;
-            if (SelectedYear != y) SelectedYear = y;
         }
 
         objRef = DotNetObjectReference.Create(this);
@@ -180,14 +305,24 @@ public partial class LFDateTimePicker : IDisposable
 
     private void SetFirstDayOfMonth_DayOfWeek()
     {
-        var d = DateTime.Parse($"{SelectedYear}-{SelectedMonth}-{SelectedDay}");
-        var persianMonth = d.GetPersianMonthStartAndEndDates();
-        FirstDayOfMonth_DayOfWeek = (int)persianMonth.StartDateOnly.DayOfWeek;
+        if (Calendar == CalendarType.Persian)
+        {
+            var firstDayOfMonth = new DateTime(SelectedYear, SelectedMonth, 1, CurrentCalendar);
+            FirstDayOfMonth_DayOfWeek = (int)firstDayOfMonth.DayOfWeek;
+            // Adjust for Persian week (Saturday = 0)
+            FirstDayOfMonth_DayOfWeek = (FirstDayOfMonth_DayOfWeek + 1) % 7;
+        }
+        else
+        {
+            var firstDayOfMonth = new DateTime(SelectedYear, SelectedMonth, 1);
+            FirstDayOfMonth_DayOfWeek = (int)firstDayOfMonth.DayOfWeek;
+            // For Gregorian, Sunday = 0, so no adjustment needed
+        }
     }
 
     private void SetDaysOfSelectedDateTime()
     {
-        DaysValue = CurrentCulture.Calendar.GetDaysInMonth(SelectedYear, SelectedMonth);
+        DaysValue = CurrentCalendar.GetDaysInMonth(SelectedYear, SelectedMonth);
     }
 
     [JSInvokable("Toggle")]
@@ -231,9 +366,18 @@ public partial class LFDateTimePicker : IDisposable
     private async Task SetToToday()
     {
         var today = DateTime.Now;
-        SelectedYear = CurrentCulture.Calendar.GetYear(today);
-        SelectedMonth = CurrentCulture.Calendar.GetMonth(today);
-        SelectedDay = CurrentCulture.Calendar.GetDayOfMonth(today);
+        if (Calendar == CalendarType.Persian)
+        {
+            SelectedYear = CurrentCalendar.GetYear(today);
+            SelectedMonth = CurrentCalendar.GetMonth(today);
+            SelectedDay = CurrentCalendar.GetDayOfMonth(today);
+        }
+        else
+        {
+            SelectedYear = today.Year;
+            SelectedMonth = today.Month;
+            SelectedDay = today.Day;
+        }
 
         // Only set time if we're in DateTime mode
         if (!IsDateOnlyMode)
@@ -243,5 +387,71 @@ public partial class LFDateTimePicker : IDisposable
 
         await _lFDateTimeJSInterop.SetOrUnsetInstance(objRef, Identity, false);
         await Toggle();
+    }
+
+    private string GetDisplayValue()
+    {
+        if (Calendar == CalendarType.Persian)
+        {
+            if (IsDateOnlyMode)
+            {
+                return $"{selectedYear:0000}/{selectedMonth:00}/{selectedDay:00}";
+            }
+            else
+            {
+                return $"{selectedYear:0000}/{selectedMonth:00}/{selectedDay:00} {Time.Hour:00}:{Time.Minute:00}";
+            }
+        }
+        else
+        {
+            if (IsDateOnlyMode)
+            {
+                return Latest.ToString("yyyy/MM/dd");
+            }
+            else
+            {
+                return Latest.ToString("yyyy/MM/dd HH:mm");
+            }
+        }
+    }
+
+    private string GetHeaderDateText()
+    {
+        if (Calendar == CalendarType.Persian)
+        {
+            if (IsDateOnlyMode)
+            {
+                return DateOnly.FromDateTime(Latest).ToPersianDateTextify();
+            }
+            else
+            {
+                return Latest.ToPersianDateTextify();
+            }
+        }
+        else
+        {
+            if (IsDateOnlyMode)
+            {
+                return Latest.ToString("dddd, MMMM dd, yyyy", new CultureInfo("en-US"));
+            }
+            else
+            {
+                return Latest.ToString("dddd, MMMM dd, yyyy HH:mm", new CultureInfo("en-US"));
+            }
+        }
+    }
+
+    private bool IsHoliday(int dayOfWeek)
+    {
+        if (Calendar == CalendarType.Persian)
+        {
+            // Friday in Persian calendar (RowNumber = 5)
+            return dayOfWeek == 5;
+        }
+        else
+        {
+            // Saturday (6) and Sunday (0) in Gregorian calendar
+            return dayOfWeek == 0 || dayOfWeek == 6;
+        }
     }
 }

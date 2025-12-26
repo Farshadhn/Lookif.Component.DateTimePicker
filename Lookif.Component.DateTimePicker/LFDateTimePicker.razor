@@ -7,7 +7,7 @@
                type="text" 
                class="DateTimeInput @(Disabled ? "disabled" : "")" 
                @onclick="Toggle" 
-               value='@(IsDateOnlyMode ? Latest.ToString("yyyy/MM/dd") : Latest.ToString("yyyy/MM/dd HH:mm"))'
+               value='@GetDisplayValue()'
                readonly />
         <img class="DateTimeIcon" 
              @onclick="Toggle" 
@@ -17,7 +17,7 @@
 
     <div id="lfdt-popup-@Identity" class='Main-Wrapper-Calendar @(Show ? "show" : "")'>
         <div class="Header-SelectedDate-Calendar">
-            @(IsDateOnlyMode ? DateOnly.FromDateTime(Latest).ToPersianDateTextify() : Latest.ToPersianDateTextify())
+            @GetHeaderDateText()
         </div>
         
         <div class="Header-Calendar">
@@ -58,7 +58,7 @@
                                 else
                                 {
                                     var temp = ++daysPassed;
-                                    <td class='Day@(temp == SelectedDay ? " selected" : "") @(item.RowNumber == 5 ? " Holiday" : "")' 
+                                    <td class='Day@(temp == SelectedDay ? " selected" : "") @(IsHoliday(item.RowNumber) ? " Holiday" : "")' 
                                         @onclick="async () => await Day_Click(temp)">
                                         @daysPassed
                                     </td>
@@ -78,7 +78,7 @@
                                     else
                                     {
                                         var temp = ++daysPassed;
-                                        <td class='Day@(temp == SelectedDay ? " selected" : "") @(item.RowNumber == 5 ? " Holiday" : "")' 
+                                        <td class='Day@(temp == SelectedDay ? " selected" : "") @(IsHoliday(item.RowNumber) ? " Holiday" : "")' 
                                             @onclick="async () => await Day_Click(temp)">
                                             @daysPassed
                                         </td>
